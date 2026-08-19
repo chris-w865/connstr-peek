@@ -1,0 +1,18 @@
+{
+  "name": "connstr-peek",
+  "version": "0.1.0",
+  "description": "Parse a database connection string and print a safe, redacted breakdown of it.",
+  "type": "module",
+  "bin": {
+    "connpeek": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "license": "MIT",
+  "author": "chris-w865",
+  "engines": {
+    "node": ">=18"
+  }
+}
