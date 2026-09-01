@@ -38,6 +38,12 @@ lingering in your shell history:
 - JDBC style: `jdbc:postgresql://host:port/db`.
 - ODBC/ADO.NET key=value style: `Key=Value;Key2=Value2;...`.
 
+## running tests
+
+    npm test
+
+Tests use Node's built-in test runner (`node:test`), so there's nothing extra to install.
+
 ## what it doesn't do
 
 It doesn't validate that a string is a *correct* connection string for a given driver, and it
