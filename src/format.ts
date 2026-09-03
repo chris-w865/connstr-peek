@@ -42,6 +42,32 @@ function formatHost(host: HostPort): string {
   return host.port ? `${host.host}:${host.port}` : host.host
 }
 
+export interface JsonReport {
+  format: ConnectionInfo['format']
+  scheme: string | null
+  hosts: HostPort[]
+  database: string | null
+  user: string | null
+  hasPassword: boolean
+  sslMode: string | null
+  params: Record<string, string>
+  redacted: string | null
+}
+
+export function formatJson(info: ConnectionInfo): JsonReport {
+  return {
+    format: info.format,
+    scheme: info.scheme,
+    hosts: info.hosts,
+    database: info.database,
+    user: info.user,
+    hasPassword: info.hasPassword,
+    sslMode: info.sslMode,
+    params: info.params,
+    redacted: info.format === 'unknown' ? null : redact(info),
+  }
+}
+
 function redact(info: ConnectionInfo): string {
   if (info.format !== 'url') return '(redaction only supported for url-style strings)'
   return info.raw.replace(/:\/\/([^:@/]+):([^@/]+)@/, (_match, user) => `://${user}:***@`)

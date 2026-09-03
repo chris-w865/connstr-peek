@@ -30,6 +30,23 @@ lingering in your shell history:
 
     echo "Server=sql01.internal;Port=1433;Database=orders;User Id=appuser;Password=hunter2;Encrypt=true;" | node dist/index.js
 
+Pass `--json` if you want the same breakdown as structured output instead of the text report,
+for feeding into another script:
+
+    node dist/index.js --json "postgres://appuser:hunter2@db.internal:5432/orders?sslmode=require"
+
+    {
+      "format": "url",
+      "scheme": "postgres",
+      "hosts": [{ "host": "db.internal", "port": "5432" }],
+      "database": "orders",
+      "user": "appuser",
+      "hasPassword": true,
+      "sslMode": "require",
+      "params": {},
+      "redacted": "postgres://appuser:***@db.internal:5432/orders?sslmode=require"
+    }
+
 ## supported formats
 
 - URL style: `postgres://`, `mysql://`, `mongodb://`, `redis://`, `amqp://`, and anything else
