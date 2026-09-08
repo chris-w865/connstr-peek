@@ -48,6 +48,43 @@ test('treats scheme+suffix forms like mongodb+srv as the full scheme', () => {
   assert.deepEqual(info.hosts, [{ host: 'cluster0.internal', port: null }])
 })
 
+test('mongodb+srv with no ssl param warns that TLS defaults to on', () => {
+  const info = parseConnectionString('mongodb+srv://appuser:hunter2@cluster0.internal/orders')
+  assert.deepEqual(info.warnings, [
+    'mongodb+srv defaults to TLS enabled unless overridden with ssl=false',
+  ])
+})
+
+test('mongodb+srv with an explicit ssl param does not warn about the TLS default', () => {
+  const info = parseConnectionString(
+    'mongodb+srv://appuser:hunter2@cluster0.internal/orders?ssl=false',
+  )
+  assert.deepEqual(info.warnings, [])
+})
+
+test('mongodb+srv flags an explicit port as invalid', () => {
+  const info = parseConnectionString(
+    'mongodb+srv://appuser:hunter2@cluster0.internal:27017/orders?ssl=true',
+  )
+  assert.deepEqual(info.warnings, [
+    'mongodb+srv hostnames do not take a port — the port comes from the SRV record',
+  ])
+})
+
+test('mongodb+srv flags a comma-separated host list as invalid', () => {
+  const info = parseConnectionString(
+    'mongodb+srv://appuser:hunter2@host1.internal,host2.internal/orders?ssl=true',
+  )
+  assert.deepEqual(info.warnings, [
+    'mongodb+srv takes exactly one hostname; the real host list comes from a DNS SRV lookup at connect time, not from this string',
+  ])
+})
+
+test('non-srv mongodb urls never get srv warnings', () => {
+  const info = parseConnectionString('mongodb://db1.internal:27017,db2.internal:27017/orders')
+  assert.deepEqual(info.warnings, [])
+})
+
 test('an empty password after the colon does not count as a password', () => {
   const info = parseConnectionString('postgres://appuser:@db.internal/orders')
   assert.equal(info.user, 'appuser')

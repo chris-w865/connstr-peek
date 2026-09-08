@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { parseConnectionString } from './parse.js'
-import { formatJson } from './format.js'
+import { formatJson, formatReport } from './format.js'
 
 test('json report redacts the password in the raw string but never carries it as a field', () => {
   const info = parseConnectionString('postgres://appuser:hunter2@db.internal:5432/orders')
@@ -31,4 +31,22 @@ test('json report carries hosts, database and ssl mode through unchanged', () =>
   assert.deepEqual(report.hosts, [{ host: '::1', port: '6379' }])
   assert.equal(report.database, '0')
   assert.equal(report.sslMode, 'true')
+})
+
+test('json report carries mongodb+srv warnings through', () => {
+  const info = parseConnectionString('mongodb+srv://appuser:hunter2@cluster0.internal:27017/orders')
+  const report = formatJson(info)
+  assert.equal(report.warnings.length, 2)
+})
+
+test('text report prints a warning line for each srv warning', () => {
+  const info = parseConnectionString('mongodb+srv://appuser:hunter2@cluster0.internal/orders')
+  const text = formatReport(info)
+  assert.match(text, /warning:    mongodb\+srv defaults to TLS enabled/)
+})
+
+test('text report has no warning lines for a plain url', () => {
+  const info = parseConnectionString('postgres://appuser:hunter2@db.internal/orders')
+  const text = formatReport(info)
+  assert.equal(text.includes('warning:'), false)
 })

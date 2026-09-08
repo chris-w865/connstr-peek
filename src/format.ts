@@ -32,6 +32,10 @@ export function formatReport(info: ConnectionInfo): string {
     lines.push(`params:     ${paramKeys.map((k) => `${k}=${info.params[k]}`).join(', ')}`)
   }
 
+  for (const warning of info.warnings) {
+    lines.push(`warning:    ${warning}`)
+  }
+
   lines.push('')
   lines.push(`redacted:   ${redact(info)}`)
 
@@ -52,6 +56,7 @@ export interface JsonReport {
   sslMode: string | null
   params: Record<string, string>
   redacted: string | null
+  warnings: string[]
 }
 
 export function formatJson(info: ConnectionInfo): JsonReport {
@@ -65,6 +70,7 @@ export function formatJson(info: ConnectionInfo): JsonReport {
     sslMode: info.sslMode,
     params: info.params,
     redacted: info.format === 'unknown' ? null : redact(info),
+    warnings: info.warnings,
   }
 }
 

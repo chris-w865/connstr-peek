@@ -13,6 +13,7 @@ export interface ConnectionInfo {
   sslMode: string | null
   params: Record<string, string>
   format: 'url' | 'keyvalue' | 'unknown'
+  warnings: string[]
 }
 
 const SSL_KEYS = ['sslmode', 'ssl', 'ssl_mode', 'encrypt', 'tls']
@@ -49,6 +50,7 @@ export function parseConnectionString(input: string): ConnectionInfo {
     sslMode: null,
     params: {},
     format: 'unknown',
+    warnings: [],
   }
 }
 
@@ -103,6 +105,7 @@ function parseKeyValue(raw: string): ConnectionInfo {
     sslMode,
     params,
     format: 'keyvalue',
+    warnings: [],
   }
 }
 
@@ -179,7 +182,29 @@ function parseUrlStyle(working: string, raw: string): ConnectionInfo {
     sslMode,
     params,
     format: 'url',
+    warnings: scheme === 'mongodb+srv' ? mongoSrvWarnings(hosts, sslMode) : [],
   }
+}
+
+// mongodb+srv doesn't carry a real host list — the driver resolves the actual
+// hosts (and their port, normally 27017) from a DNS SRV record at connect time,
+// and TLS defaults to on unless ssl=false is set explicitly. None of that is
+// visible from the string alone, so surface it instead of silently parsing it
+// like an ordinary multi-host url.
+function mongoSrvWarnings(hosts: HostPort[], sslMode: string | null): string[] {
+  const warnings: string[] = []
+  if (hosts.length !== 1) {
+    warnings.push(
+      'mongodb+srv takes exactly one hostname; the real host list comes from a DNS SRV lookup at connect time, not from this string',
+    )
+  }
+  if (hosts.some((h) => h.port !== null)) {
+    warnings.push('mongodb+srv hostnames do not take a port — the port comes from the SRV record')
+  }
+  if (sslMode === null) {
+    warnings.push('mongodb+srv defaults to TLS enabled unless overridden with ssl=false')
+  }
+  return warnings
 }
 
 function splitHostPort(part: string): HostPort {

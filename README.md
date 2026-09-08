@@ -55,6 +55,16 @@ for feeding into another script:
 - JDBC style: `jdbc:postgresql://host:port/db`.
 - ODBC/ADO.NET key=value style: `Key=Value;Key2=Value2;...`.
 
+`mongodb+srv://` gets extra scrutiny: the driver resolves the real host list from a DNS SRV
+record at connect time, so a `+srv` string is only valid with exactly one hostname and no port,
+and it defaults to TLS on unless `ssl=false` is set. This tool doesn't do the DNS lookup itself —
+it just parses the string — but it flags those cases in a `warnings` list when the string breaks
+the rules or leaves TLS implicit:
+
+    node dist/index.js "mongodb+srv://appuser:hunter2@cluster0.internal:27017/orders"
+
+    warning:    mongodb+srv hostnames do not take a port — the port comes from the SRV record
+
 ## running tests
 
     npm test
