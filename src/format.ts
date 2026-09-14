@@ -74,6 +74,22 @@ export function formatJson(info: ConnectionInfo): JsonReport {
   }
 }
 
+export interface CheckResult {
+  // 0: parses cleanly, 1: parses but has warnings, 2: not recognized as a connection string
+  code: 0 | 1 | 2
+  reason: string | null
+}
+
+export function checkStatus(info: ConnectionInfo): CheckResult {
+  if (info.format === 'unknown') {
+    return { code: 2, reason: 'could not recognize this as a connection string' }
+  }
+  if (info.warnings.length > 0) {
+    return { code: 1, reason: info.warnings.join('; ') }
+  }
+  return { code: 0, reason: null }
+}
+
 function redact(info: ConnectionInfo): string {
   if (info.format !== 'url') return '(redaction only supported for url-style strings)'
   return info.raw.replace(/:\/\/([^:@/]+):([^@/]+)@/, (_match, user) => `://${user}:***@`)

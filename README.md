@@ -47,6 +47,17 @@ for feeding into another script:
       "redacted": "postgres://appuser:***@db.internal:5432/orders?sslmode=require"
     }
 
+Pass `--check-only` to skip the report entirely and just get an exit code, for use in CI or a
+pre-commit hook that scans for stray connection strings:
+
+    node dist/index.js --check-only "postgres://appuser:hunter2@db.internal:5432/orders"; echo $?
+
+    0
+
+Exit code `0` means the string parsed cleanly with no warnings, `1` means it parsed but has
+something worth a second look (printed to stderr), and `2` means it wasn't recognized as a
+connection string at all.
+
 ## supported formats
 
 - URL style: `postgres://`, `mysql://`, `mongodb://`, `redis://`, `amqp://`, and anything else
