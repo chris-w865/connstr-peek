@@ -6,13 +6,24 @@
   "bin": {
     "connpeek": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "tsc && node --test dist"
+    "test": "tsc && node --test dist",
+    "prepublishOnly": "npm run build"
   },
   "license": "MIT",
   "author": "chris-w865",
+  "keywords": [
+    "connection-string",
+    "cli",
+    "jdbc",
+    "odbc",
+    "redact"
+  ],
   "engines": {
     "node": ">=18"
   }
