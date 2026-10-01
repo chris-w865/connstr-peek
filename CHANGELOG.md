@@ -17,4 +17,6 @@ First pass at the tool. Not published yet.
 - `--json` flag for structured output.
 - `--check-only` flag with a three-way exit code (0 clean, 1 parsed with
   warnings, 2 not recognized) for use in CI or a pre-commit hook.
+- `--help` and `--version`; unknown dashed options now exit 2 instead of being
+  parsed as a connection string.
 - Read the connection string from an argument or from stdin.
